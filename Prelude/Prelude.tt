@@ -1,0 +1,45 @@
+﻿<#@ template debug="false" hostspecific="false" language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ output extension=".g.cs" #>
+using System;
+using System.Runtime.CompilerServices;
+
+namespace CSharp.Functional {
+    public static partial class Prelude {
+<# for (int count = 1; count <= 10; count++) {
+        string Transform(int count, string joinString, Func<int, string> transform) =>
+            string.Join(joinString, Enumerable.Range(1, count).Select(transform));
+
+        string AsUncurried(int count) => 
+            Transform(count, ", ", i => $"T{i}");
+
+        if (count > 1) {
+#>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static <#= string.Join("", Enumerable.Range(1, count).Select(i => $"Func<T{i}, ")) #>T<#= count + 1 #><#= new string('>', count) #> Curry<<#= string.Join(", ", Enumerable.Range(1, count + 1).Select(i => "T" + i)) #>>(this Func<<#= AsUncurried(count + 1) #>> function) =>
+          <#= string.Join("", Enumerable.Range(1, count).Select(i => $"x{i} => ")) #>function(<#= string.Join(", ", Enumerable.Range(1, count).Select(i => $"x{i}")) #>);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Func<<#= string.Join(", ", Enumerable.Range(1, count + 1).Select(i => $"T{i}")) #>> Uncurry<<#= string.Join(", ", Enumerable.Range(1, count + 1).Select(i => "T" + i)) #>>(this <#= string.Join("", Enumerable.Range(1, count).Select(i => $"Func<T{i}, ")) #>T<#= count + 1 #><#= new string('>', count) #> function) =>
+          (<#= string.Join(", ", Enumerable.Range(1, count).Select(i => $"x{i}")) #>) => function<#= string.Join("", Enumerable.Range(1, count).Select(i => $"(x{i})")) #>;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Func<T1, T<#= count + 2 #>> ComposeWith<<#= AsUncurried(count + 2) #>>(this Func<T1, T2> func1, <#= Transform(count, ", ", i => $"Func<T{i+1}, T{i+2}> func{i+1}") #>) =>
+            func1
+            <#= Transform(count, "\n            ", i => $".ComposeWith(func{i+1})") #>;
+
+<# } #>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Func<T<#= count + 1#>> Defer<<#= AsUncurried(count + 1) #>>(Func<<#= AsUncurried(count + 1) #>> function, <#= Transform(count, ", ", i => $"T{i} x{i}") #>) =>
+            () => function(<#= Transform(count, ", ", i => $"x{i}") #>);
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Action<<#= AsUncurried(count) #>> Ignore<<#= AsUncurried(count) #>>(Action action) =>
+            (<#= string.Join(", ", Enumerable.Range(1, count).Select(i => new string('_', i))) #>) => action();
+
+<# } #>
+    }
+}

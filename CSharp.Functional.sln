@@ -1,0 +1,36 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29905.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{3B96163E-D548-49E2-8344-889EA7871875}"
+	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
+		.gitignore = .gitignore
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prelude", "Prelude\Prelude.csproj", "{EF1306A8-11B1-4F84-9598-2885C6AE00FB}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{EF1306A8-11B1-4F84-9598-2885C6AE00FB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF1306A8-11B1-4F84-9598-2885C6AE00FB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF1306A8-11B1-4F84-9598-2885C6AE00FB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF1306A8-11B1-4F84-9598-2885C6AE00FB}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{EF1306A8-11B1-4F84-9598-2885C6AE00FB} = {3B96163E-D548-49E2-8344-889EA7871875}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C9F38F63-3492-4C05-A21D-F0F0FEE7BB4B}
+	EndGlobalSection
+EndGlobal
