@@ -7,8 +7,8 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace CSharp.Functional {
-    public static partial class Prelude {
+namespace CatMath {
+    public static partial class Functions {
 <# for (int count = 1; count <= 10; count++) {
         string Transform(int count, string joinString, Func<int, string> transform) =>
             string.Join(joinString, Enumerable.Range(1, count).Select(transform));
@@ -31,9 +31,18 @@ namespace CSharp.Functional {
             func1
             <#= Transform(count, "\n            ", i => $".ComposeWith(func{i+1})") #>;
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Func<T<#= count + 1 #>> ComposeWith<<#= AsUncurried(count + 1) #>>(this Func<T1> func, <#= Transform(count, ", ", i => $"Func<T{i}, T{i+1}> func{i}") #>) =>
+            func
+            <#= Transform(count, "\n            ", i => $".ComposeWith(func{i})") #>;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static Func<(<#= AsUncurried(count) #>), T<#= count + 1 #>> Entuple<<#= AsUncurried(count + 1) #>>(this Func<<#= AsUncurried(count + 1) #>> function) =>
+            x => function(<#= Transform(count, ", ", i => $"x.Item{i}") #>);
+
 <# } #>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static Func<T<#= count + 1#>> Defer<<#= AsUncurried(count + 1) #>>(Func<<#= AsUncurried(count + 1) #>> function, <#= Transform(count, ", ", i => $"T{i} x{i}") #>) =>
+        public static Func<T<#= count + 1#>> Defer<<#= AsUncurried(count + 1) #>>(this Func<<#= AsUncurried(count + 1) #>> function, <#= Transform(count, ", ", i => $"T{i} x{i}") #>) =>
             () => function(<#= Transform(count, ", ", i => $"x{i}") #>);
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
