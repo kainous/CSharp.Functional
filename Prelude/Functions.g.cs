@@ -34,7 +34,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2), T3> Entuple<T1, T2, T3>(this Func<T1, T2, T3> function) =>
             x => function(x.Item1, x.Item2);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T3> Defer<T1, T2, T3>(this Func<T1, T2, T3> function, T1 x1, T2 x2) =>
             () => function(x1, x2);
@@ -68,7 +68,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3), T4> Entuple<T1, T2, T3, T4>(this Func<T1, T2, T3, T4> function) =>
             x => function(x.Item1, x.Item2, x.Item3);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T4> Defer<T1, T2, T3, T4>(this Func<T1, T2, T3, T4> function, T1 x1, T2 x2, T3 x3) =>
             () => function(x1, x2, x3);
@@ -104,7 +104,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3, T4), T5> Entuple<T1, T2, T3, T4, T5>(this Func<T1, T2, T3, T4, T5> function) =>
             x => function(x.Item1, x.Item2, x.Item3, x.Item4);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T5> Defer<T1, T2, T3, T4, T5>(this Func<T1, T2, T3, T4, T5> function, T1 x1, T2 x2, T3 x3, T4 x4) =>
             () => function(x1, x2, x3, x4);
@@ -142,7 +142,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3, T4, T5), T6> Entuple<T1, T2, T3, T4, T5, T6>(this Func<T1, T2, T3, T4, T5, T6> function) =>
             x => function(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T6> Defer<T1, T2, T3, T4, T5, T6>(this Func<T1, T2, T3, T4, T5, T6> function, T1 x1, T2 x2, T3 x3, T4 x4, T5 x5) =>
             () => function(x1, x2, x3, x4, x5);
@@ -182,7 +182,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3, T4, T5, T6), T7> Entuple<T1, T2, T3, T4, T5, T6, T7>(this Func<T1, T2, T3, T4, T5, T6, T7> function) =>
             x => function(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5, x.Item6);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T7> Defer<T1, T2, T3, T4, T5, T6, T7>(this Func<T1, T2, T3, T4, T5, T6, T7> function, T1 x1, T2 x2, T3 x3, T4 x4, T5 x5, T6 x6) =>
             () => function(x1, x2, x3, x4, x5, x6);
@@ -224,7 +224,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3, T4, T5, T6, T7), T8> Entuple<T1, T2, T3, T4, T5, T6, T7, T8>(this Func<T1, T2, T3, T4, T5, T6, T7, T8> function) =>
             x => function(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5, x.Item6, x.Item7);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T8> Defer<T1, T2, T3, T4, T5, T6, T7, T8>(this Func<T1, T2, T3, T4, T5, T6, T7, T8> function, T1 x1, T2 x2, T3 x3, T4 x4, T5 x5, T6 x6, T7 x7) =>
             () => function(x1, x2, x3, x4, x5, x6, x7);
@@ -268,7 +268,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3, T4, T5, T6, T7, T8), T9> Entuple<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9> function) =>
             x => function(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5, x.Item6, x.Item7, x.Item8);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T9> Defer<T1, T2, T3, T4, T5, T6, T7, T8, T9>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9> function, T1 x1, T2 x2, T3 x3, T4 x4, T5 x5, T6 x6, T7 x7, T8 x8) =>
             () => function(x1, x2, x3, x4, x5, x6, x7, x8);
@@ -314,7 +314,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3, T4, T5, T6, T7, T8, T9), T10> Entuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> function) =>
             x => function(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5, x.Item6, x.Item7, x.Item8, x.Item9);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T10> Defer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> function, T1 x1, T2 x2, T3 x3, T4 x4, T5 x5, T6 x6, T7 x7, T8 x8, T9 x9) =>
             () => function(x1, x2, x3, x4, x5, x6, x7, x8, x9);
@@ -362,7 +362,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(T1, T2, T3, T4, T5, T6, T7, T8, T9, T10), T11> Entuple<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> function) =>
             x => function(x.Item1, x.Item2, x.Item3, x.Item4, x.Item5, x.Item6, x.Item7, x.Item8, x.Item9, x.Item10);
-
+        
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T11> Defer<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11>(this Func<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10, T11> function, T1 x1, T2 x2, T3 x3, T4 x4, T5 x5, T6 x6, T7 x7, T8 x8, T9 x9, T10 x10) =>
             () => function(x1, x2, x3, x4, x5, x6, x7, x8, x9, x10);

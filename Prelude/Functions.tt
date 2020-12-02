@@ -4,6 +4,36 @@
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ output extension=".g.cs" #>
+<#
+    IEnumerable<string> GetOrderedPartitionsOf(int totalTypes, Func<int, string> transform) {
+        IEnumerable<IEnumerable<IEnumerable<T>>> GetAllOrderedPartitionsN<T>(ICollection<T> items, int totalPartitions) =>
+            totalPartitions < 2
+            ? Enumerable.Repeat(Enumerable.Repeat(items, 1), 1)
+            : from index in Enumerable.Range(0, items.Count + 1)
+                let start = Enumerable.Repeat(items.Take(index), 1)
+                from end in GetAllOrderedPartitionsN(items.Skip(index).ToList(), totalPartitions - 1)
+                select start.Concat(end);
+
+        var items = Enumerable.Range(1, totalTypes).ToArray();
+
+        return
+            from text in
+                from i in Enumerable.Range(1, items.Length)
+                from partitions in GetAllOrderedPartitionsN(items, i)
+                let partition = partitions.Select(Enumerable.ToArray)
+                where partition.All(a => a.Length >= 1 && a.Length <= totalTypes)
+                where partition.Any(a => a.Length != 1)
+                select
+                    from part in partition
+                    let transformed =
+                        from index in part
+                        select transform(index)
+                    let innerStrings = string.Join(", ", transformed)
+                    let stringFormat = part.Length == 1 ? "{0}" : "({0})"
+                    select string.Format(stringFormat, string.Join(", ", innerStrings))
+            select string.Join(", ", text);
+    }
+#>
 using System;
 using System.Runtime.CompilerServices;
 
@@ -39,7 +69,7 @@ namespace CatMath {
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<(<#= AsUncurried(count) #>), T<#= count + 1 #>> Entuple<<#= AsUncurried(count + 1) #>>(this Func<<#= AsUncurried(count + 1) #>> function) =>
             x => function(<#= Transform(count, ", ", i => $"x.Item{i}") #>);
-
+        
 <# } #>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public static Func<T<#= count + 1#>> Defer<<#= AsUncurried(count + 1) #>>(this Func<<#= AsUncurried(count + 1) #>> function, <#= Transform(count, ", ", i => $"T{i} x{i}") #>) =>
