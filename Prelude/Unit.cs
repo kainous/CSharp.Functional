@@ -8,15 +8,15 @@ namespace CatMath.Structures {
         public static Unit Default { get; } =
             new Unit();
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(Functions.Aggressive)]
         public bool Equals(Unit _) => 
             true;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public override bool Equals(object obj) =>
+        [MethodImpl(Functions.Aggressive)]
+        public override bool Equals(object? obj) =>
             obj is Unit;
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(Functions.Aggressive)]
         public override int GetHashCode() =>
             0;
 

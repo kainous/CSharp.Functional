@@ -22,7 +22,7 @@ namespace CatMath.Structures {
             _thatOne = value;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        [MethodImpl(Functions.Aggressive)]
         public T If<T>(Func<TThis, T> thisFunction, Func<TThat, T> thatFunction) =>
             // Constructors prohibit the case that both are set, or neither are set
             _isThis ? thisFunction(_thisOne) : thatFunction(_thatOne);
@@ -30,13 +30,13 @@ namespace CatMath.Structures {
 
     namespace Linq {
         public static class Choice {
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            [MethodImpl(Functions.Aggressive)]
             public static Choice<TOut1, TOut2> Select<TIn1, TIn2, TOut1, TOut2>(this Choice<TIn1, TIn2> value, Func<TIn1, TOut1> transform1, Func<TIn2, TOut2> transform2) =>
                 value.If(
                     x => new Choice<TOut1, TOut2>(transform1(x)),
                     y => new Choice<TOut1, TOut2>(transform2(y)));
 
-            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            [MethodImpl(Functions.Aggressive)]
             public static Result<T, TException> AsResult<T, TException>(this Choice<T, TException> value) where TException : Exception =>
                 value.If(
                     x => new Result<T, TException>(x),
