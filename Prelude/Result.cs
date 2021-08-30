@@ -3,28 +3,63 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
+using CSharp.Functional.Structures;
 
-namespace CatMath {
+namespace CSharp.Functional {
     using static Functions;
-    using CatMath.Structures;
     static partial class Functions {
         public static Result<T> Ok<T>(T value) =>
-            new Result<T>(value);
+            new(value);
 
         public static Result<T> Error<T>(Exception ex) =>
-            new Result<T>(ex);
+            new(ex);
 
-        public static Result<TResult, TException> TryCatch<TResult, TException>(Func<TResult> tryFunction, Action? finallyFunction = null)
+        public static Result<TResult, TException> Try<TResult, TException>(Func<TResult> tryFunction, Action<TResult>? finallyFunction = null)
           where TException : Exception {
+            TResult result = default!;
             try {
-                return new Result<TResult, TException>(tryFunction());
+                result = tryFunction();
             }
             catch (TException ex) {
-                return new Result<TResult, TException>(ex);
+                return new(ex);
             }
             finally {
-                finallyFunction?.Invoke();
+                if (finallyFunction is not null) {
+                    finallyFunction(result);
+                }
             }
+            return new(result);
+        }
+
+        [MethodImpl(Aggressive)]
+        public static Result<T> Try<T>(Func<T> func, Action<T>? final) {
+            T value = default!;
+            try {
+                value = func();
+            }
+            catch (Exception ex) {
+                return new(ex);
+            }
+            finally {
+                final?.Invoke(value);
+            }
+            return new(value);
+        }
+
+        [MethodImpl(Aggressive)]
+        public static async Task<Result<T>> TryAsync<T>(Func<Task<T>> func, Func<T, Task>? final) {
+            T value = default!;
+            try {
+                value = await func();
+            }
+            catch (Exception ex) {
+                return new(ex);
+            }
+            finally {
+                final?.Invoke(value);
+            }
+            return new(value);
         }
 
         public static Result<T> Try<T>(Func<T> tryFunction, Action? finallyFunction = null) {
@@ -43,10 +78,8 @@ namespace CatMath {
     namespace Structures {
         public sealed class Result<T, TException>
           where TException : Exception {
-#pragma warning disable CS8601 // Possible null reference assignment.
-            private readonly T _ok = default;
-            private readonly TException? _err = null;
-#pragma warning restore CS8601 // Possible null reference assignment.
+            private readonly T _ok = default!;
+            private readonly TException? _err = null!;
 
             public Result(TException error) =>
                 _err = error;
@@ -77,10 +110,8 @@ namespace CatMath {
         }
 
         public sealed class Result<T> {
-#pragma warning disable CS8601 // Possible null reference assignment.
-            private readonly T _ok = default;
-            private readonly Exception? _err = default;
-#pragma warning restore CS8601 // Possible null reference assignment.
+            private readonly T _ok = default!;
+            private readonly Exception? _err = default!;
 
             public Result(Exception error) =>
                 _err = error;
@@ -115,9 +146,9 @@ namespace CatMath {
                 [MethodImpl(Aggressive)]
                 public static Result<TResult> ForgetExceptionType<TResult, TException>(this Result<TResult, TException> result)
                   where TException : Exception =>
-                    result.If(
-                        val => new Result<TResult>(val),
-                        err => new Result<TResult>(err));
+                    result.If<Result<TResult>>(
+                        val => new(val),
+                        err => new(err));
 
                 [MethodImpl(Aggressive)]
                 public static Opt<T> ToOpt<T>(this Result<T> result) =>
@@ -131,30 +162,30 @@ namespace CatMath {
                 [MethodImpl(Aggressive)]
                 public static Result<TResult, TException> Select<TSource, TResult, TException>(this Result<TSource, TException> result, Func<TSource, TResult> transform)
                   where TException : Exception =>
-                    result.If(
-                        val => new Result<TResult, TException>(transform(val)),
-                        err => new Result<TResult, TException>(err));
+                    result.If<Result<TResult, TException>>(
+                        val => new(transform(val)),
+                        err => new(err));
 
                 [MethodImpl(Aggressive)]
                 public static Result<TResult, TExceptionOut> Select<TSource, TResult, TExceptionIn, TExceptionOut>(this Result<TSource, TExceptionIn> result, Func<TSource, TResult> transform, Func<TExceptionIn, TExceptionOut> exceptionTransformer)
                   where TExceptionIn : Exception
                   where TExceptionOut : Exception =>
-                    result.If(
-                        val => new Result<TResult, TExceptionOut>(transform(val)),
-                        err => new Result<TResult, TExceptionOut>(exceptionTransformer(err)));
+                    result.If<Result<TResult, TExceptionOut>>(
+                        val => new(transform(val)),
+                        err => new(exceptionTransformer(err)));
 
                 [MethodImpl(Aggressive)]
                 public static Result<TResult> Select<TSource, TResult>(this Result<TSource> result, Func<TSource, TResult> transform) =>
-                    result.If(
-                        val => new Result<TResult>(transform(val)),
-                        err => new Result<TResult>(err));
+                    result.If<Result<TResult>>(
+                        val => new(transform(val)),
+                        err => new(err));
 
                 [MethodImpl(Aggressive)]
                 public static Result<T, TException> SelectMany<T, TException>(this Result<Result<T, TException>, TException> result)
                   where TException : Exception =>
                     result.If(
                         val => val,
-                        err => new Result<T, TException>(err));
+                        err => new(err));
 
 
                 [MethodImpl(Aggressive)]

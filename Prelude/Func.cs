@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace CatMath.Structures.Linq {
+namespace CSharp.Functional.Structures.Linq {
     public static class FuncExtensions {
         public static Func<TResult> Select<TSource, TResult>(this Func<TSource> source, Func<TSource, TResult> transform) =>            
             () => transform(source());

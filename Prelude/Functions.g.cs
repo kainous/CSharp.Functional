@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace CatMath {
+namespace CSharp.Functional {
     public static partial class Functions {
         [MethodImpl(Aggressive)]
         public static Func<T2> Defer<T1, T2>(this Func<T1, T2> function, T1 x1) =>

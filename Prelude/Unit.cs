@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace CatMath.Structures {
+namespace CSharp.Functional.Structures {
     public struct Unit : IEquatable<Unit> {
         public static Unit Default { get; } =
             new Unit();

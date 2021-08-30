@@ -7,30 +7,68 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Diagnostics.CodeAnalysis;
 
-namespace CatMath {
+namespace CSharp.Functional {
     using Structures;
 
     static partial class Functions {
         [MethodImpl(Aggressive)]
         public static Opt<T> AsOpt<T>(this T? value) where T : struct =>
-            value.HasValue ? OneOf(value.Value) : default;
+            value.HasValue
+            ? OneOf(value.Value) 
+            : default;
 
         [MethodImpl(Aggressive)]
         public static Opt<T> AsOpt<T>(this T? value) where T : class =>
-            value is null ? default : OneOf(value);
+            value is null
+            ? default 
+            : OneOf(value);
 
         [MethodImpl(Aggressive)]
         public static Opt<T> AsOptIf<T>(this T value, bool condition) =>
-            condition ? OneOf(value) : default;
+            condition 
+            ? OneOf(value) 
+            : default;
 
         // Different usage, one that comes off as a constructor, vs 
         [MethodImpl(Aggressive)]
         public static Opt<T> OneOf<T>(T value) =>
-        new Opt<T>(value);
+            new (value);
 
         [MethodImpl(Aggressive)]
         public static Opt<T> None<T>() =>
             default;
+
+        [MethodImpl(Aggressive)]
+        public static Opt<T> Try<T>(Func<T> func, Action<T>? final = null) {
+            T value = default!;
+            try {
+                value = func();
+            }
+            catch {
+                return default;
+            }
+            finally {
+                final?.Invoke(value);
+            }
+            return new(value);
+        }
+
+        [MethodImpl(Aggressive)]
+        public static async Task<Opt<T>> TryAsync<T>(Func<Task<T>> func, Func<T, Task>? final = null) {
+            T value = default!;
+            try {
+                value = await func();
+            }
+            catch {
+                return default;
+            }
+            finally {
+                if (final is not null) {
+                    await final(value);
+                }
+            }
+            return new(value);
+        }
     }
 
     namespace Structures {
@@ -48,28 +86,30 @@ namespace CatMath {
             [MethodImpl(Aggressive)]
             public bool TryGetValue([NotNullWhen(true)] out T value) {
                 if (_hasValue) {
-#pragma warning disable CS8762 // Parameter must have a non-null value when exiting in some condition.
-                    value = _value;
+                    value = _value!;
                     return true;
-#pragma warning restore CS8762 // Parameter must have a non-null value when exiting in some condition.
                 }
-#pragma warning disable CS8601 // Possible null reference assignment.
-                value = default;
+                value = default!;
                 return false;
-#pragma warning restore CS8601 // Possible null reference assignment.
             }
 
             [MethodImpl(Aggressive)]
             public T OrElse(T alternateValue) =>
-                _hasValue ? _value : alternateValue;
+                _hasValue
+                ? _value 
+                : alternateValue;
 
             [MethodImpl(Aggressive)]
             public Opt<T> OrElse(Opt<T> alternateValue) =>
-                _hasValue ? this : alternateValue;
+                _hasValue
+                ? this 
+                : alternateValue;
 
             [MethodImpl(Aggressive)]
             public TResult If<TResult>(Func<T, TResult> transform, TResult alternateValue) =>
-                _hasValue ? transform(_value) : alternateValue;
+                _hasValue
+                ? transform(_value) 
+                : alternateValue;
 
             [MethodImpl(Aggressive)]
             public static T operator |(Opt<T> value, T alternateValue) =>
@@ -101,7 +141,9 @@ namespace CatMath {
                 !first.Equals(second, EqualityComparer<T>.Default);
 
             public override int GetHashCode() =>
-                TryGetValue(out var result) ? result.GetHashCode() : 0;
+                TryGetValue(out var result) 
+                ? result.GetHashCode() 
+                : 0;
 
             public override string? ToString() =>
                 TryGetValue(out var result)
@@ -138,15 +180,21 @@ namespace CatMath {
 
                 [MethodImpl(Aggressive)]
                 public static IEnumerable<TResult> SelectMany<TSource, TMiddle, TResult>(this IEnumerable<TSource> source, Func<TSource, Opt<TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
-                    source.SelectMany(x => middleSelector(x).AsEnumerable(), resultSelector);
+                    source.SelectMany(
+                        x => middleSelector(x).AsEnumerable(),
+                        resultSelector);
 
                 [MethodImpl(Aggressive)]
                 public static IObservable<TResult> SelectMany<TSource, TMiddle, TResult>(this IObservable<TSource> source, Func<TSource, Opt<TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
-                    source.SelectMany(x => middleSelector(x).AsObservable(), resultSelector);
+                    source.SelectMany(
+                        x => middleSelector(x).AsObservable(), 
+                        resultSelector);
 
                 [MethodImpl(Aggressive)]
                 public static IAsyncEnumerable<TResult> SelectMany<TSource, TMiddle, TResult>(this IAsyncEnumerable<TSource> source, Func<TSource, Opt<TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
-                    source.SelectMany(x => middleSelector(x).AsAsyncEnumerable(), resultSelector);
+                    source.SelectMany(
+                        x => middleSelector(x).AsAsyncEnumerable(),
+                        resultSelector);
 
                 [MethodImpl(Aggressive)]
                 public static Opt<TResult> SelectMany<TSource, TResult>(this Opt<TSource> source, Func<TSource, Opt<TResult>> transform) =>
@@ -170,11 +218,15 @@ namespace CatMath {
 
                 [MethodImpl(Aggressive)]
                 public static Opt<TResult> Select<TSource, TResult>(this Opt<TSource> source, Func<TSource, TResult> transform) =>
-                    source.If(transform.ComposeWith(OneOf), None<TResult>());
+                    source.If(
+                        transform.ComposeWith(OneOf),
+                        None<TResult>());
 
                 [MethodImpl(Aggressive)]
                 public static Opt<T> Where<T>(this Opt<T> source, Func<T, bool> predicate) =>
-                    source.If(x => x.AsOptIf(predicate(x)), None<T>());
+                    source.If(
+                        x => x.AsOptIf(predicate(x)),
+                        None<T>());
 
                 [MethodImpl(Aggressive)]
                 public static Opt<T> FirstOrOpt<T>(this IEnumerable<T> items, Func<T, bool> predicate) {
@@ -291,11 +343,15 @@ namespace CatMath {
 
                 [MethodImpl(Aggressive)]
                 public static Opt<TValue> TryGetValue<TKey, TValue>(this IDictionary<TKey, TValue> dictionary, TKey key) =>
-                    dictionary.TryGetValue(key, out var result) ? OneOf(result) : default;
+                    dictionary.TryGetValue(key, out var result)
+                    ? OneOf(result) 
+                    : default;
 
                 [MethodImpl(Aggressive)]
                 public static Opt<TValue> TryGetValue<TKey, TValue>(this IReadOnlyDictionary<TKey, TValue> dictionary, TKey key) =>
-                    dictionary.TryGetValue(key, out var result) ? OneOf(result) : default;
+                    dictionary.TryGetValue(key, out var result) 
+                    ? OneOf(result) 
+                    : default;
             }
         }
     }

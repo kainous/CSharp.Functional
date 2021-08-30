@@ -3,9 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace CatMath {
+namespace CSharp.Functional {
     using System.Collections.Concurrent;
     using System.Diagnostics.CodeAnalysis;
+    using System.Threading.Tasks;
     using Structures;
     using Structures.Linq;
 
@@ -19,6 +20,36 @@ namespace CatMath {
         [MethodImpl(Aggressive)]
         public static T Id<T>(T value) =>
             value;
+
+        [MethodImpl(Aggressive)]
+        public static bool Try(Action action, Action final) {
+            try {
+                action();
+                return true;
+            }
+            catch {
+                return false;
+            }
+            finally {
+                final?.Invoke();
+            }
+        }
+
+        [MethodImpl(Aggressive)]
+        public static async Task<bool> TryAsync(Func<Task> action, Func<Task>? final=null) {
+            try {
+                await action();
+                return true;
+            }
+            catch {
+                return false;
+            }
+            finally{
+                if (final is Func<Task> f) {
+                    await f();
+                }
+            }
+        }
 
         [MethodImpl(Aggressive)]
         public static Func<TIn, TOut> Const<TIn, TOut>(TOut value) =>

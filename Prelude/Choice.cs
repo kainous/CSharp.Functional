@@ -1,17 +1,15 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
 
-namespace CatMath.Structures {
+namespace CSharp.Functional.Structures {
 
     // Either cannot be a struct, because structs allow for empty constructor
     // Either as a class may allow for null, therefore it's recommended that you use C# LangVersion 8 or above
     // In order to verify that you are not using null here
     public sealed class Choice<TThis, TThat> {
-#pragma warning disable CS8601 // Possible null reference
-        private readonly TThis _thisOne = default;
-        private readonly TThat _thatOne = default;
-#pragma warning restore CS8601 // Possible null reference
-        private readonly bool _isThis = false;
+        private readonly TThis _thisOne = default!;
+        private readonly TThat _thatOne = default!;
+        private readonly bool _isThis;
 
         public Choice(TThis value) {
             _isThis = true;
@@ -19,6 +17,7 @@ namespace CatMath.Structures {
         }
 
         public Choice(TThat value) {
+            _isThis = false;
             _thatOne = value;
         }
 

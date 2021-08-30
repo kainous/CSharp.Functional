@@ -1,4 +1,4 @@
-﻿namespace CatMath {
+﻿namespace CSharp.Functional {
     public struct Optional<T> {
         private readonly T _value;
         private readonly bool _hasValue;

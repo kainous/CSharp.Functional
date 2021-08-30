@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace CatMath {
+namespace CSharp.Functional {
     public class TupleEqualityComparer<T1, T2> : IEqualityComparer<(T1, T2)> {
         public IEqualityComparer<T1> Comparer1 { get; }
         public IEqualityComparer<T2> Comparer2 { get; }
