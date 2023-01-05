@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
 
-namespace CSharp.Functional.Structures.Linq {
+namespace Maat.Functional.Structures.Linq {
     public static class FuncExtensions {
         private const MethodImplOptions Aggressive = MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveInlining;
         
@@ -16,7 +16,7 @@ namespace CSharp.Functional.Structures.Linq {
             () => transform(source());
 
         [MethodImpl(Aggressive)]
-        public static Func<Unit, TResult> Select<TSource, TResult>(this Func<Unit, TSource> source, Func<TSource, TResult> transform) =>
+        public static Func<NotUsed, TResult> Select<TSource, TResult>(this Func<NotUsed, TSource> source, Func<TSource, TResult> transform) =>
             _ => transform(source(default));
 
         [MethodImpl(Aggressive)]
@@ -24,15 +24,15 @@ namespace CSharp.Functional.Structures.Linq {
             source();
 
         [MethodImpl(Aggressive)]
-        public static Func<Unit, T> SelectMany<T>(this Func<Unit, Func<Unit, T>> source) =>
+        public static Func<NotUsed, T> SelectMany<T>(this Func<NotUsed, Func<NotUsed, T>> source) =>
             source(default);
 
         [MethodImpl(Aggressive)]
-        public static Func<T> SelectMany<T>(this Func<Unit, Func<T>> source) =>
+        public static Func<T> SelectMany<T>(this Func<NotUsed, Func<T>> source) =>
             source(default);
 
         [MethodImpl(Aggressive)]
-        public static Func<Unit, T> SelectMany<T>(this Func<Func<Unit, T>> source) =>
+        public static Func<NotUsed, T> SelectMany<T>(this Func<Func<NotUsed, T>> source) =>
             source();
 
         [MethodImpl(Aggressive)]
@@ -42,18 +42,18 @@ namespace CSharp.Functional.Structures.Linq {
             select resultSelector(s, m);
 
         [MethodImpl(Aggressive)]
-        public static Func<TResult> SelectMany<TSource, TMiddle, TResult>(this Func<TSource> source, Func<TSource, Func<Unit, TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
+        public static Func<TResult> SelectMany<TSource, TMiddle, TResult>(this Func<TSource> source, Func<TSource, Func<NotUsed, TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
             from s in source
             let m = middleSelector(s)(default)
             select resultSelector(s, m);
 
         [MethodImpl(Aggressive)]
-        public static Func<Unit, TResult> SelectMany<TSource, TMiddle, TResult>(this Func<Unit, TSource> source, Func<TSource, Func<TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
+        public static Func<NotUsed, TResult> SelectMany<TSource, TMiddle, TResult>(this Func<NotUsed, TSource> source, Func<TSource, Func<TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
             from s in source
             let m = middleSelector(s)()
             select resultSelector(s, m);
 
-        public static Func<Unit, TResult> SelectMany<TSource, TMiddle, TResult>(this Func<Unit, TSource> source, Func<TSource, Func<Unit, TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
+        public static Func<NotUsed, TResult> SelectMany<TSource, TMiddle, TResult>(this Func<NotUsed, TSource> source, Func<TSource, Func<NotUsed, TMiddle>> middleSelector, Func<TSource, TMiddle, TResult> resultSelector) =>
             from s in source
             let m = middleSelector(s)(default)
             select resultSelector(s, m);
@@ -64,17 +64,17 @@ namespace CSharp.Functional.Structures.Linq {
             select resultSelector(s)();
 
         [MethodImpl(Aggressive)]
-        public static Func<Unit, TResult> SelectMany<TSource, TResult>(this Func<Unit, TSource> source, Func<TSource, Func<Unit, TResult>> resultSelector) =>
+        public static Func<NotUsed, TResult> SelectMany<TSource, TResult>(this Func<NotUsed, TSource> source, Func<TSource, Func<NotUsed, TResult>> resultSelector) =>
             from s in source
             select resultSelector(s)(default);
 
         [MethodImpl(Aggressive)]
-        public static Func<TResult> SelectMany<TSource, TResult>(this Func<TSource> source, Func<TSource, Func<Unit, TResult>> resultSelector) =>
+        public static Func<TResult> SelectMany<TSource, TResult>(this Func<TSource> source, Func<TSource, Func<NotUsed, TResult>> resultSelector) =>
             from s in source
             select resultSelector(s)(default);
 
         [MethodImpl(Aggressive)]
-        public static Func<Unit, TResult> SelectMany<TSource, TResult>(this Func<Unit, TSource> source, Func<TSource, Func<TResult>> resultSelector) =>
+        public static Func<NotUsed, TResult> SelectMany<TSource, TResult>(this Func<NotUsed, TSource> source, Func<TSource, Func<TResult>> resultSelector) =>
             from s in source
             select resultSelector(s)();
 

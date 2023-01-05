@@ -3,25 +3,30 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace CSharp.Functional {
+namespace Maat.Functional {
     using System.Collections.Concurrent;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
+
     using Structures;
     using Structures.Linq;
 
     public static partial class Functions {
-        public const MethodImplOptions Aggressive = MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization;
+        public const MethodImplOptions AggressiveOptimization = MethodImplOptions.AggressiveInlining;// | MethodImplOptions.AggressiveOptimization;
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static void Id() {
         }
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static T Id<T>(T value) =>
             value;
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
+        public static TResult PipeTo<TSource, TResult>(this TSource input, Func<TSource, TResult> func) =>
+            func(input);
+
+        [MethodImpl(AggressiveOptimization)]
         public static bool Try(Action action, Action final) {
             try {
                 action();
@@ -35,8 +40,8 @@ namespace CSharp.Functional {
             }
         }
 
-        [MethodImpl(Aggressive)]
-        public static async Task<bool> TryAsync(Func<Task> action, Func<Task>? final=null) {
+        [MethodImpl(AggressiveOptimization)]
+        public static async Task<bool> TryAsync(Func<Task> action, Func<Task>? final = null) {
             try {
                 await action();
                 return true;
@@ -44,66 +49,66 @@ namespace CSharp.Functional {
             catch {
                 return false;
             }
-            finally{
+            finally {
                 if (final is Func<Task> f) {
                     await f();
                 }
             }
         }
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<TIn, TOut> Const<TIn, TOut>(TOut value) =>
             _ => value;
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T2, T1, T3> Flip<T1, T2, T3>(this Func<T1, T2, T3> function) =>
             (y, x) => function(x, y);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T2, Func<T1, T3>> Flip<T1, T2, T3>(this Func<T1, Func<T2, T3>> function) =>
             y => x => function(x)(y);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T3, T1, T2, T4> Permute1<T1, T2, T3, T4>(this Func<T1, T2, T3, T4> function) =>
             (z, x, y) => function(x, y, z);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T3, T1, T2, T4> Permute2<T1, T2, T3, T4>(this Func<T1, T2, T3, T4> function) =>
             (z, x, y) => function(x, y, z);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T3> ComposeWith<T1, T2, T3>(this Func<T1, T2> func1, Func<T2, T3> func2) =>
             x => func2(func1(x));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T2> ComposeWith<T1, T2>(this Func<T1> func1, Func<T1, T2> func2) =>
             () => func2(func1());
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T, T> Compose<T>(this IEnumerable<Func<T, T>> functions) =>
             functions.Aggregate(ComposeWith);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static (T2, T1) Swap<T1, T2>(this (T1, T2) data) =>
             (data.Item2, data.Item1);
 
-        [MethodImpl(Aggressive)]
-        public static Func<Unit, T> WithUnit<T>(this Func<T> data) =>
+        [MethodImpl(AggressiveOptimization)]
+        public static Func<NotUsed, T> WithUnit<T>(this Func<T> data) =>
             _ => data();
 
-        [MethodImpl(Aggressive)]
-        public static Action<T> WithoutUnit<T>(Func<T, Unit> action) =>
+        [MethodImpl(AggressiveOptimization)]
+        public static Action<T> WithoutUnit<T>(Func<T, NotUsed> action) =>
             x => action(x);
 
-        [MethodImpl(Aggressive)]
-        public static Func<T, Unit> WithUnit<T>(Action<T> action) =>
-            new Func<T, Unit>(x => { action(x); return default; });
+        [MethodImpl(AggressiveOptimization)]
+        public static Func<T, NotUsed> WithUnit<T>(Action<T> action) =>
+            new Func<T, NotUsed>(x => { action(x); return default; });
 
-        [MethodImpl(Aggressive)]
-        public static Func<TIn, TOut> Memoize<TIn, TOut>(this Func<TIn, TOut> function, IEqualityComparer<TIn>? comparer = null, bool isMultithreaded = true, bool isComplexFunction = true)
+        [MethodImpl(AggressiveOptimization)]
+        public static Func<TIn, TOut> Memoize<TIn, TOut>(this Func<TIn, TOut> function, IEqualityComparer<TIn>? comparer = null, bool needsThreadSafety = true, bool isComplexFunction = true)
           where TIn : notnull {
             comparer ??= EqualityComparer<TIn>.Default;
-            if (!isMultithreaded) {
+            if (!needsThreadSafety) {
                 var dict = new Dictionary<TIn, TOut>(comparer);
                 return key => {
                     if (!dict.TryGetValue(key, out var result)) {
@@ -123,74 +128,86 @@ namespace CSharp.Functional {
             }
         }
 
-        [MethodImpl(Aggressive)]
-        public static Func<T1, T2, TOut> Memoize<T1, T2, TOut>(this Func<T1, T2, TOut> function, IEqualityComparer<T1> comparer1, IEqualityComparer<T2> comparer2, bool isMultithreaded = true, bool isComplexFunction = true) =>
+        [MethodImpl(AggressiveOptimization)]
+        public static Func<T1, T2, TOut> Memoize<T1, T2, TOut>(this Func<T1, T2, TOut> function, IEqualityComparer<T1> comparer1, IEqualityComparer<T2> comparer2, bool needsThreadSafety = true, bool isComplexFunction = true) =>
             Normalize(Memoize(
                 x => function(x.Item1, x.Item2),
                 new TupleEqualityComparer<T1, T2>(comparer1, comparer2),
-                isMultithreaded,
+                needsThreadSafety,
                 isComplexFunction));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
+        public static Func<T1, T2, T3, TOut> Memoize<T1, T2, T3, TOut>(this Func<T1, T2, T3, TOut> function, IEqualityComparer<T1> comparer1, IEqualityComparer<T2> comparer2, IEqualityComparer<T3> comparer3, bool needsThreadSafety = true, bool isComplexFunction = true) =>
+            Normalize(Memoize(
+                x => function(x.Item1.Item1, x.Item1.Item2, x.Item2),
+                new TupleEqualityComparer<(T1, T2), T3>(new TupleEqualityComparer<T1, T2>(comparer1, comparer2), comparer3),
+                needsThreadSafety,
+                isComplexFunction));
+
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3> Detuple<T1, T2, T3>(this Func<(T1, T2), T3> function) =>
         (x, y) => function((x, y));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static T1 First<T1, T2>(T1 value, T2 _) =>
             value;
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static T1 First<T1, T2>((T1, T2) item) => item.Item1;
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static T2 Second<T1, T2>(T1 _, T2 value) =>
             value;
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static T2 Second<T1, T2>((T1, T2) item) => item.Item2;
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, TOut> Normalize<T1, T2, TOut>(Func<ValueTuple<T1, T2>, TOut> function) =>
             (x, y) => function(ValueTuple.Create(x, y));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
+        public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<ValueTuple<ValueTuple<T1, T2>, T3>, TOut> function) =>
+            (x, y, z) => function(ValueTuple.Create(ValueTuple.Create(x, y), z));
+
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, TOut> Normalize<T1, T2, TOut>(Func<Tuple<T1, T2>, TOut> function) =>
             (x, y) => function(Tuple.Create(x, y));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, TOut> Normalize<T1, T2, TOut>(Func<KeyValuePair<T1, T2>, TOut> function) =>
-            (x, y) => function(KeyValuePair.Create(x, y));
+            (x, y) => function(new KeyValuePair<T1, T2>(x, y));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<ValueTuple<T1, T2, T3>, TOut> function) =>
             (x1, x2, x3) => function(ValueTuple.Create(x1, x2, x3));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<ValueTuple<T1, T2>, T3, TOut> function) =>
             (x1, x2, x3) => function(ValueTuple.Create(x1, x2), x3);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<T1, ValueTuple<T2, T3>, TOut> function) =>
             (x1, x2, x3) => function(x1, ValueTuple.Create(x2, x3));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<Tuple<T1, T2, T3>, TOut> function) =>
             (x1, x2, x3) => function(Tuple.Create(x1, x2, x3));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<Tuple<T1, T2>, T3, TOut> function) =>
             (x1, x2, x3) => function(Tuple.Create(x1, x2), x3);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<T1, Tuple<T2, T3>, TOut> function) =>
             (x1, x2, x3) => function(x1, Tuple.Create(x2, x3));
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<KeyValuePair<T1, T2>, T3, TOut> function) =>
-            (x1, x2, x3) => function(KeyValuePair.Create(x1, x2), x3);
+            (x1, x2, x3) => function(new KeyValuePair<T1, T2>(x1, x2), x3);
 
-        [MethodImpl(Aggressive)]
+        [MethodImpl(AggressiveOptimization)]
         public static Func<T1, T2, T3, TOut> Normalize<T1, T2, T3, TOut>(Func<T1, KeyValuePair<T2, T3>, TOut> function) =>
-            (x1, x2, x3) => function(x1, KeyValuePair.Create(x2, x3));
+            (x1, x2, x3) => function(x1, new KeyValuePair<T2, T3>(x2, x3));
     }
 }

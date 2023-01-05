@@ -1,20 +1,20 @@
-﻿namespace CSharp.Functional {
-    public struct Optional<T> {
-        private readonly T _value;
-        private readonly bool _hasValue;
+﻿namespace Maat.Functional;
 
-        private Optional(T value) {
-            _hasValue = true;
-            _value = value;
-        }
+public struct Optional<T> {
+    private readonly T _value;
+    private readonly bool _hasValue;
 
-        public static implicit operator Optional<T>(T value) =>
-            new(value);
-
-        public static T operator |(Optional<T> value, T alternate) =>
-            value._hasValue ? value._value : alternate;
-
-        public static Optional<T> operator |(Optional<T> value, Optional<T> alternate) =>
-            value._hasValue ? value : alternate;
+    private Optional(T value) {
+        _hasValue = true;
+        _value = value;
     }
+
+    public static implicit operator Optional<T>(T value) =>
+        new(value);
+
+    public static T operator |(Optional<T> value, T alternate) =>
+        value._hasValue ? value._value : alternate;
+
+    public static Optional<T> operator |(Optional<T> value, Optional<T> alternate) =>
+        value._hasValue ? value : alternate;
 }

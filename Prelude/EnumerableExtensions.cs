@@ -1,60 +1,81 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace CSharp.Functional {
+using Maat.Functional.Structures;
+using Maat.Functional.Structures.Linq;
+
+namespace Maat.Functional {
     public static class EnumerableExtensions {
+        public static async IAsyncEnumerable<T> OnErrorResumeNext<T>(this IAsyncEnumerable<T> items, [EnumeratorCancellation] CancellationToken cancellationToken = default) {
+            await using var e = items.GetAsyncEnumerator(cancellationToken);
 
-    }
-
-    public static class Ord {
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static T Max<T>(this IComparer<T> comparer, params T[] items) {
-            if (items.Length == 0) {
-                throw new ArgumentException("items must be non-empty", nameof(items));
+            async ValueTask<bool> TryGetNext() {
+                try {
+                    return
+                        !cancellationToken.IsCancellationRequested
+                        && await e.MoveNextAsync();
+                }
+                catch {
+                    return false;
+                }
             }
 
-            var current = items[0];
-            // Do not optimize items.Length out of this loop, or the compiler will lose
-            // context and begin testing bounds every iteration
-            for (int i = 1; i < items.Length; i++) {
-                var item = items[i];
-                current =
-                    comparer.Compare(current, item) > 0
-                    ? item
-                    : current;
+            while (await TryGetNext()) {
+                var item = Opt.Try(() => e.Current);
+                if (item.HasValue) {
+                    yield return item.Value!;
+                }
             }
-
-            return current;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static T Max<T>(this IEnumerable<T> items, IComparer<T> comparer) =>
-            items.Aggregate((acc, elem) => comparer.Compare(acc, elem) > 0 ? acc : elem);
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static T Min<T>(this IComparer<T> comparer, params T[] items) {
-            if (items.Length == 0) {
-                throw new ArgumentException("items must be non-empty", nameof(items));
+        public static void ForEach<T>(this IEnumerable<T> items, Action<T> action) {
+            foreach (var item in items) {
+                action(item);
             }
-
-            var current = items[0];
-            // Do not optimize items.Length out of this loop, or the compiler will lose
-            // context and begin testing bounds every iteration
-            for (int i = 1; i < items.Length; i++) {
-                var item = items[i];
-                current =
-                    comparer.Compare(current, item) < 0
-                    ? item
-                    : current;
-            }
-
-            return current;
         }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining | MethodImplOptions.AggressiveOptimization)]
-        public static T Min<T>(this IEnumerable<T> items, IComparer<T> comparer) =>
-            items.Aggregate((acc, elem) => comparer.Compare(acc, elem) < 0 ? acc : elem);
+        public static IEnumerable<TResult> SelectWithTry<T, TResult>(this IEnumerable<T> items, Func<T, TResult> selector, Action<Exception>? exceptionAction = null, Action? finalAction = null) {
+            foreach (var item in items) {
+                bool successful = false;
+                TResult? result = default;
+                try {
+                    result = selector(item);
+                    successful = true;
+                }
+                catch (Exception ex) {
+                    exceptionAction?.Invoke(ex);
+                }
+                finally {
+                    finalAction?.Invoke();
+                }
+                if (successful) {
+                    yield return result!;
+                }
+            }
+        }
+
+        public static IEnumerable<T> Do<T>(this IEnumerable<T> items, Action<T> action) {
+            foreach (var item in items) {
+                action(item);
+                yield return item;
+            }
+        }
+
+        public static void ForEach<T>(this IEnumerable<T> items, Action<T> action, Action<Exception>? exceptionAction = null, Action? finalAction = null) {
+            foreach (var item in items) {
+                try {
+                    action(item);
+                }
+                catch (Exception ex) {
+                    exceptionAction?.Invoke(ex);
+                }
+                finally {
+                    finalAction?.Invoke();
+                }
+            }
+        }
     }
 }

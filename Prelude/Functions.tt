@@ -37,7 +37,7 @@
 using System;
 using System.Runtime.CompilerServices;
 
-namespace CatMath {
+namespace Maat.Functional {
     public static partial class Functions {
 <# for (int count = 1; count <= 10; count++) {
         string Transform(int count, string joinString, Func<int, string> transform) =>

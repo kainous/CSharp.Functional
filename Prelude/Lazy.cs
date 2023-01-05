@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CSharp.Functional.Structures.Linq {
+namespace Maat.Functional.Structures.Linq {
     using static Functions;
     public static class Lazy {
         public static Lazy<T> AsLazy<T>(this Func<T> function) =>
